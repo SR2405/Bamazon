@@ -15,21 +15,30 @@ var connection = mysql.createConnection ({
 connection.connect(function(err) {
   if (err) throw err;
   console.log("connected as id " + connection.threadId);
+  connection.query("SELECT * FROM products", function(err,result,fields)
+  {
+    if (err) throw err;
+    console.log(result);
+  });
   start();
 });
 
 // function which prompts the user for what action they should take
-     function start(){
-       //display all items
-
+     function start(){  
 // The app should then prompt users with two messages.
     inquirer
-       .prompt({
+       .prompt([{
   // The first should ask them the ID of the product they would like to buy.
-           type: "input",
+           type: "list",
+           name: 'requestedID',
            message: " What is the ID of the item you want to buy?",
-           name: 'requestedID'
-         })
+            choices: function (result){
+             for (var i=0; i< result.length; i++){
+               console.log (result[i].item_id);
+
+         }
+        }
+       }])
          .then(function(answer){
            if (answer.requestedID <= 10){
              askUnit();
@@ -40,18 +49,29 @@ connection.connect(function(err) {
            }
          });
 
+        
+
+    //      function askUnit (){
+    //        inquirer
+    //        .prompt(
+    //          {
+    //           // The second message should ask how many units of the product they would like to buy.
+    //           type: "input",
+    //           message: " How many units do you want to buy?",
+    //           name: 'units'
+    //        })
+    //        .then(function(unitCheck){
+    //          if (unitCheck.units <= "stock_quantity" && "stock_quantity" !== 0 ){
+    //            console.log('good choice!');
+    //          }
+    //          else {
+    //            console.log("insufficient quantity!");
+    //            connection.end();
+    //          }
+    //        })
+    //       }
+    //   })
+    // }
+      //   })
+      // }
         }
-
-         function askUnit (){
-           inquirer
-           .prompt([
-             {
-              // The second message should ask how many units of the product they would like to buy.
-              type: "input",
-              message: " How many units do you want to buy?",
-              name: 'units'
-
-           }])
-         }
-
-
