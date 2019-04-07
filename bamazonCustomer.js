@@ -29,15 +29,9 @@ connection.connect(function(err) {
     inquirer
        .prompt([{
   // The first should ask them the ID of the product they would like to buy.
-           type: "list",
+           type: "rawdata",
            name: 'requestedID',
-           message: " What is the ID of the item you want to buy?",
-            choices: function (result){
-             for (var i=0; i< result.length; i++){
-               console.log (result[i].item_id);
-
-         }
-        }
+           message: " What is the ID of the item you want to buy?"
        }])
          .then(function(answer){
            if (answer.requestedID <= 10){
@@ -51,27 +45,23 @@ connection.connect(function(err) {
 
         
 
-    //      function askUnit (){
-    //        inquirer
-    //        .prompt(
-    //          {
-    //           // The second message should ask how many units of the product they would like to buy.
-    //           type: "input",
-    //           message: " How many units do you want to buy?",
-    //           name: 'units'
-    //        })
-    //        .then(function(unitCheck){
-    //          if (unitCheck.units <= "stock_quantity" && "stock_quantity" !== 0 ){
-    //            console.log('good choice!');
-    //          }
-    //          else {
-    //            console.log("insufficient quantity!");
-    //            connection.end();
-    //          }
-    //        })
-    //       }
-    //   })
-    // }
-      //   })
-      // }
+         function askUnit (){
+           inquirer
+           .prompt(
+             {
+              // The second message should ask how many units of the product they would like to buy.
+              type: "input",
+              message: " How many units do you want to buy?",
+              name: 'units'
+           })
+           .then(function(unitCheck){
+             if (unitCheck.units <= "stock_quantity" && "stock_quantity" !== 0 ){
+               console.log('good choice!');
+             }
+             else {
+               console.log("insufficient quantity!");
+               connection.end();
+             }
+           })
+          }
         }
