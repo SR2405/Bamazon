@@ -15,37 +15,40 @@ var connection = mysql.createConnection ({
 connection.connect(function(err) {
   if (err) throw err;
   console.log("connected as id " + connection.threadId);
-  connection.query("SELECT * FROM products", function(err,result,fields)
-  {
-    if (err) throw err;
-    console.log(result);
-  });
+
   start();
 });
 
 // function which prompts the user for what action they should take
      function start(){  
-// The app should then prompt users with two messages.
-    inquirer
-       .prompt([{
-  // The first should ask them the ID of the product they would like to buy.
-           type: "rawdata",
-           name: 'requestedID',
-           message: " What is the ID of the item you want to buy?"
-       }])
-         .then(function(answer){
-           if (answer.requestedID <= 10){
-             askUnit();
-           }
-           else{
-             console.log("ID not valid!");
-             connection.end();
-           }
-         });
-
+      connection.query("SELECT * FROM products", function(err,result,fields)
+      {
+        if (err) throw err;
+        console.log(result);
+        // The app should then prompt users with two messages.
+        inquirer
+        .prompt([{
+          // The first should ask them the ID of the product they would like to buy.
+          type: "rawdata",
+          name: 'requestedID',
+          message: " What is the ID of the item you want to buy?"
+        }])
+        .then(function(answer){
+          if (answer.requestedID <= result.length){
+            askUnit(answer.requestedID);
+          }
+          else{
+            console.log("ID not valid!");
+            connection.end();
+          }
+        });
+      });
+        
         
 
-         function askUnit (){
+         function askUnit (id){
+      
+
            inquirer
            .prompt(
              {
@@ -54,14 +57,37 @@ connection.connect(function(err) {
               message: " How many units do you want to buy?",
               name: 'units'
            })
-           .then(function(unitCheck){
-             if (unitCheck.units <= "stock_quantity" && "stock_quantity" !== 0 ){
-               console.log('good choice!');
-             }
-             else {
-               console.log("insufficient quantity!");
-               connection.end();
-             }
+           .then(function(answer){
+             var chosenUnits;
+
+             var query = "Select * FROM products WHERE item_id=?"
+             connection.query(query, id, function(err, response){
+               console.log( response[0].stock_quantity);
+
+               if (response[0].stock_quantity < parseInt(answer.units)){
+                 console.log("not enough")
+               }
+               else {
+                 console.log("Order placed!");
+                  reduceUnits(response[0].item_id, response[0].stock_quantity - parseInt(answer.units));
+               }
+             })
+
+           
            })
+          }
+
+
+          function reduceUnits(id,number){
+            var query = "UPDATE products SET stock_quantity=? WHERE item_id=?"
+
+            var sqlArr = [number,id]
+
+            connection.query(query,sqlArr, function(err, response){
+              console.log(response);
+
+              start();
+            })
+
           }
         }
