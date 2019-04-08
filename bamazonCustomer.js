@@ -62,14 +62,18 @@ connection.connect(function(err) {
 
              var query = "Select * FROM products WHERE item_id=?"
              connection.query(query, id, function(err, response){
-               console.log( response[0].stock_quantity);
+              //  console.log( response[0].stock_quantity);
 
                if (response[0].stock_quantity < parseInt(answer.units)){
-                 console.log("not enough")
+                 console.log("Sorry we are out of stock!")
+                 startOver();
+
                }
                else {
-                 console.log("Order placed!");
+                 console.log("Order successful!");
+                 console.log("Your cost is: $" + response[0].price* parseInt(answer.units));
                   reduceUnits(response[0].item_id, response[0].stock_quantity - parseInt(answer.units));
+                
                }
              })
 
@@ -84,10 +88,31 @@ connection.connect(function(err) {
             var sqlArr = [number,id]
 
             connection.query(query,sqlArr, function(err, response){
-              console.log(response);
+              // console.log(response);
 
-              start();
+              // start();
             })
 
           }
+
+          function startOver(){
+            inquirer
+           .prompt(
+             {
+              // The second message should ask how many units of the product they would like to buy.
+              type: "list",
+              message: "What do you want to do?",
+              name: 'restart',
+              choices: ["Goodbye!","Back to the list!"]
+           })
+           .then(function(answer){
+             if (answer.restart === "Back to the list!"){
+               start();
+             }
+             else{
+               connection.end();
+             }
+           })
+
+          };
         }
